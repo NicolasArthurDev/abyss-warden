@@ -9,10 +9,21 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
+        RotateAttackPointToMouse();
+
+        if (Input.GetMouseButtonDown(0)) // Clique esquerdo
         {
             Attack();
         }
+    }
+
+    void RotateAttackPointToMouse()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPos.z = 0f;
+
+        Vector2 direction = (mouseWorldPos - transform.position).normalized;
+        attackPoint.localPosition = direction * 0.6f;
     }
 
     void Attack()
