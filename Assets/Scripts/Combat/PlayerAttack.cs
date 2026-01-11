@@ -2,32 +2,41 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public GameObject attackHitbox;
-    public float attackCooldown = 0.5f;
-
-    private float lastAttackTime;
+    public Transform attackPoint;
+    public float attackRange = 0.5f;
+    public LayerMask enemyLayer;
+    public int attackDamage = 1;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
-            TryAttack();
+            Attack();
         }
     }
 
-    void TryAttack()
+    void Attack()
     {
-        if (Time.time < lastAttackTime + attackCooldown)
-            return;
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
+            attackPoint.position,
+            attackRange,
+            enemyLayer
+        );
 
-        lastAttackTime = Time.time;
-        StartCoroutine(AttackRoutine());
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            EnemyHealth health = enemy.GetComponent<EnemyHealth>();
+            if (health != null)
+            {
+                health.TakeDamage(attackDamage);
+            }
+        }
     }
 
-    System.Collections.IEnumerator AttackRoutine()
+    void OnDrawGizmosSelected()
     {
-        attackHitbox.SetActive(true);
-        yield return new WaitForSeconds(0.2f);
-        attackHitbox.SetActive(false);
+        if (attackPoint == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }
